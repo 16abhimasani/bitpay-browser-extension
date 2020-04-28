@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './navbar.scss';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { browser } from 'webextension-polyfill-ts';
@@ -8,9 +8,30 @@ import { resizeFrame, FrameDimensions } from '../../../services/frame';
 import BitpayLogo from './bp-logo/bp-logo';
 import BackButton from './back-button/back-button';
 
+const animateNav = {
+  base: {
+    background: '#FFFFFF',
+    transition: {
+      type: 'tween',
+      duration: 0.25,
+      delay: 0
+    }
+  },
+  pay: {
+    background: '#0C204E',
+    transition: {
+      type: 'tween',
+      duration: 0.25,
+      delay: 0.25
+    }
+  }
+};
+
 const Navbar: React.FC<RouteComponentProps> = ({ history, location }) => {
   const [preCollapseHeight, setPreCollapseHeight] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
+  const [payVisible, setPayVisible] = useState(false);
+  const payMode = payVisible && collapsed;
   const goBack = (): void => {
     if (collapsed) {
       setCollapsed(false);
@@ -31,9 +52,18 @@ const Navbar: React.FC<RouteComponentProps> = ({ history, location }) => {
   };
   const routesWithBackButton = ['/brand', '/card', '/amount', '/payment', '/settings/', '/category'];
   const showBackButton = routesWithBackButton.some(route => location.pathname.startsWith(route));
+  useEffect(() => {
+    const payReady = (mode: boolean) => (): void => setPayVisible(mode);
+    window.addEventListener('PAY_VISIBLE', payReady(true));
+    window.addEventListener('PAY_HIDDEN', payReady(false));
+    return (): void => {
+      window.removeEventListener('PAY_VISIBLE', payReady(true));
+      window.removeEventListener('PAY_HIDDEN', payReady(false));
+    };
+  }, []);
   return (
-    <div className="header-bar fixed">
-      <AnimatePresence>{showBackButton && <BackButton onClick={goBack} />}</AnimatePresence>
+    <motion.div className="header-bar fixed" animate={payMode ? 'pay' : 'base'} variants={animateNav}>
+      <AnimatePresence>{showBackButton && !payMode && <BackButton onClick={goBack} />}</AnimatePresence>
 
       <BitpayLogo solo={showBackButton} />
 
@@ -61,7 +91,7 @@ const Navbar: React.FC<RouteComponentProps> = ({ history, location }) => {
           <img alt="exit" src="../assets/icons/exit-icon.svg" />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

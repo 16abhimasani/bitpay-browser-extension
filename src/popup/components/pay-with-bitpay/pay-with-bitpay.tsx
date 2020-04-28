@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import classNames from 'classnames';
 import { browser } from 'webextension-polyfill-ts';
@@ -112,6 +112,12 @@ const PayWithBitpay: React.FC<Partial<RouteComponentProps> & {
       setErrorMessage(err.message || 'An unexpected error occurred');
       setAwaitingPayment(false);
     });
+  useEffect(() => {
+    window.dispatchEvent(new Event('PAY_VISIBLE'));
+    return (): void => {
+      window.dispatchEvent(new Event('PAY_HIDDEN'));
+    };
+  }, []);
   return (
     <>
       <div className="pay-with-bitpay">
