@@ -20,8 +20,10 @@ const SearchBar: React.FC<any> = ({ output, value, tracking, placeholder, autoFo
     output('');
     tracking.trackEvent({ action: 'clearedSearchBox' });
   };
+  const [focus, setFocused] = useState(false);
   const [scrollY, setScrollY] = useState(window.scrollY);
   const boxShadow = { boxShadow: `0 1px 5px 0 rgba(0, 0, 0, ${transform(scrollY, [0, 20], [0, 0.05])})` };
+  const focused = { boxShadow: '0 0 0 1px #4f6ef7', borderRadius: 6 };
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleScroll = (e: any): void => setScrollY(e?.currentTarget?.scrollTop);
@@ -31,13 +33,15 @@ const SearchBar: React.FC<any> = ({ output, value, tracking, placeholder, autoFo
   }, []);
   return (
     <motion.div id="search-bar" className="search-bar--wrapper" style={boxShadow}>
-      <div className="search-bar">
+      <motion.div className="search-bar" style={focus ? focused : {}}>
         <div className="search-bar__box">
           <input
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={autoFocus}
             value={value || ''}
             onChange={onChange}
+            onFocus={(): void => setFocused(true)}
+            onBlur={(): void => setFocused(false)}
             className="search-bar__box__input"
             placeholder={placeholder || `Search Brand or Category`}
             type="text"
@@ -55,7 +59,7 @@ const SearchBar: React.FC<any> = ({ output, value, tracking, placeholder, autoFo
             <img id="searchIcon" className="search-bar__box__icon" alt="search" src="../assets/icons/search-icon.svg" />
           )}
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

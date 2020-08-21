@@ -6,6 +6,8 @@
   background: $fog;
   border-radius: 8px;
   height: 34px;
+  box-shadow: 0 0 0 1px transparent;
+  transition: all 250ms ease;
 
   &--wrapper {
     position: sticky;
