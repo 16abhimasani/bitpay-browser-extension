@@ -19,11 +19,12 @@ const Cards: React.FC<any> = ({ location, purchasedGiftCards, merchants }) => {
   const cards = (purchasedGiftCards as GiftCard[])
     .filter(card => card.name === cardConfig.name && !card.archived && card.status !== 'UNREDEEMED')
     .sort(sortByDescendingDate);
+  const normalizeBalances = (cards as GiftCard[]).filter(card => card.status !== 'FAILURE');
   resizeFrame(405);
   return (
     <>
       <div className="cards-page">
-        <WalletCard type="brand-box" cards={cards} cardConfig={cardConfig} />
+        <WalletCard type="brand-box" cards={normalizeBalances} cardConfig={cardConfig} />
         {cards.map((card, index) => (
           <motion.div whileHover={{ scale: 0.98 }} whileTap={{ scale: 1.02 }} key={index}>
             <Link
